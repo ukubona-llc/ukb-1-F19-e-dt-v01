@@ -1,0 +1,276 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;
+  --ink2:#4a4a46;
+  --ink3:#8a8a84;
+  --paper:#faf9f6;
+  --rule:#e2e0d8;
+  --rule2:#ccc9be;
+  --amber:#b87c1a;
+  --amber-bg:#fdf3dc;
+  --amber-border:#e8c870;
+  --red:#a02828;
+  --red-bg:#fdf0f0;
+  --red-border:#e8a8a8;
+  --green:#2a6e3f;
+  --green-bg:#f0f7f2;
+  --green-border:#9ecfb0;
+  --blue:#1e4f8a;
+  --blue-bg:#f0f4fb;
+  --blue-border:#9bbce8;
+  --mono:'Courier New',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body{font-family:var(--sans);background:transparent;color:var(--ink)}
+.root{padding:1.5rem 0}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--rule)}
+.artifact-id{font-family:var(--mono);font-size:12px;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-border);padding:4px 10px;border-radius:4px;letter-spacing:.02em}
+.meta{font-size:11px;color:var(--ink3);line-height:1.7;text-align:right}
+.nav{display:flex;gap:0;margin-bottom:1.25rem;border:1px solid var(--rule2);border-radius:6px;overflow:hidden}
+.nav-btn{flex:1;font-size:12px;font-weight:500;font-family:var(--sans);padding:8px 6px;background:#fff;border:none;border-right:1px solid var(--rule2);color:var(--ink3);cursor:pointer;transition:all .15s;letter-spacing:.01em}
+.nav-btn:last-child{border-right:none}
+.nav-btn.on{background:var(--ink);color:#faf9f6}
+.nav-btn:hover:not(.on){background:var(--paper)}
+.panel{display:none}
+.panel.on{display:block}
+.node{background:#fff;border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:10px}
+.node.warn{border-left:3px solid var(--amber-border)}
+.node.risk{border-left:3px solid var(--red-border)}
+.node.ok{border-left:3px solid var(--green-border)}
+.node.info{border-left:3px solid var(--blue-border)}
+.node-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px}
+.node-label{font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
+.chip{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.04em}
+.chip-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.chip-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.chip-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.chip-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.chip-gray{background:var(--paper);color:var(--ink3);border:1px solid var(--rule2)}
+.node-body{font-size:12px;color:var(--ink2);line-height:1.65}
+.meter-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.meter-val{font-family:var(--mono);font-size:12px;font-weight:700}
+.meter-bar{width:60px;height:5px;background:var(--rule);border-radius:2px;overflow:hidden}
+.meter-fill{height:100%;border-radius:2px;transition:width .5s}
+.arrow{text-align:center;color:var(--ink3);font-size:14px;margin:2px 0 4px;line-height:1}
+.formula{font-family:var(--mono);font-size:12px;color:var(--ink2);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;margin:12px 0;line-height:1.9}
+.formula b{color:var(--ink);font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.cell{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 14px}
+.cell-head{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.cell-body{font-size:12px;color:var(--ink2);line-height:1.65}
+.cell-body b{color:var(--ink);font-weight:600}
+.gate{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:6px;margin-bottom:8px;cursor:pointer;transition:background .1s}
+.gate:hover{background:var(--paper)}
+.gate-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.gate-dot.open{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.gate-dot.closed{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.gate-title{font-size:13px;font-weight:600;color:var(--ink)}
+.gate-sub{font-size:11px;color:var(--ink3);margin-top:2px;font-family:var(--mono)}
+.s-node{display:flex;align-items:center;justify-content:space-between;background:var(--green-bg);border:1px solid var(--green-border);border-radius:6px;padding:14px 16px;cursor:pointer;transition:opacity .15s}
+.s-node:hover{opacity:.85}
+.s-label{font-size:13px;font-weight:600;color:var(--green);display:flex;align-items:center;gap:8px}
+.s-sub{font-size:11px;color:var(--green);opacity:.8;margin-top:3px;font-family:var(--mono)}
+.divider{height:1px;background:var(--rule);margin:14px 0}
+.ulysses-item{background:#fff;border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:8px}
+.ul-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ul-num{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#faf9f6;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ul-title{font-size:13px;font-weight:600;color:var(--ink)}
+.ul-body{font-size:12px;color:var(--ink2);line-height:1.65}
+.missing-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.missing{background:var(--red-bg);border:1px solid var(--red-border);border-radius:6px;padding:10px 12px}
+.missing-tag{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-bottom:4px}
+.missing-title{font-size:12px;font-weight:600;color:var(--red)}
+.missing-sub{font-size:11px;color:var(--red);opacity:.75;margin-top:2px;font-family:var(--mono)}
+.closing{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;font-size:12px;color:var(--ink2);line-height:1.7;font-style:italic;margin-top:8px}
+</style>
+<div class="root">
+  <div class="header">
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8a8a84;margin-bottom:6px">Digital twin · Ukubona LLC</div>
+      <div class="artifact-id">ukb-1-F19-e-dt-v01</div>
+    </div>
+    <div class="meta">Scale 1 · Person<br>Domain F19 · ICD-10<br>Node E · Eigenmode · v01</div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn on" onclick="tab('tmves',this)">TMVES chain</button>
+    <button class="nav-btn" onclick="tab('variance',this)">Variance</button>
+    <button class="nav-btn" onclick="tab('ulysses',this)">Ulysses</button>
+    <button class="nav-btn" onclick="tab('gate',this)">η-gate</button>
+  </div>
+
+  <div id="p-tmves" class="panel on">
+    <div class="node info">
+      <div class="node-head">
+        <div class="node-label"><span class="chip chip-blue">T</span>Tensor · bedrock prior</div>
+        <div class="meter-wrap">
+          <span class="meter-val" style="color:#1e4f8a">HIGH</span>
+          <div class="meter-bar"><div class="meter-fill" style="width:88%;background:#1e4f8a"></div></div>
+        </div>
+      </div>
+      <div class="node-body">2017 (Ambien + asleep at wheel) · 2021 (rollover, unconscious) · 2025 (clip + flip + urine refusal). Grey-Aware policy: historical curvature is non-erasable. P(θ_t) is high and compounding.</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="node warn">
+      <div class="node-head">
+        <div class="node-label"><span class="chip chip-amber">M</span>Matrix · compression</div>
+        <div class="meter-wrap">
+          <span class="meter-val" style="color:#b87c1a">0.74</span>
+          <div class="meter-bar"><div class="meter-fill" style="width:74%;background:#b87c1a"></div></div>
+        </div>
+      </div>
+      <div class="node-body">Breathalyzer 0.00 · gait + visible impairment positive. Substance class inference: pain-med cascade, not alcohol. Twin compresses to actionable loss gradient without urine test — P(D|θ_t) remains usable.</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="node risk">
+      <div class="node-head">
+        <div class="node-label"><span class="chip chip-red">V</span>Vector · governance wall</div>
+        <div class="meter-wrap">
+          <span class="meter-val" style="color:#a02828">WIDE</span>
+          <div class="meter-bar"><div class="meter-fill" style="width:95%;background:#a02828"></div></div>
+        </div>
+      </div>
+      <div class="node-body">Urine test refusal = V-node wall. Missing data is governed uncertainty, not a dead end. Non-invasive priors (gait, speech, crash telemetry) maintain inference continuity. σ²_i inflated but not fatal to the chain.</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="node warn">
+      <div class="node-head">
+        <div class="node-label"><span class="chip chip-amber">E</span>Eigenmode · posterior identity</div>
+        <div class="meter-wrap">
+          <span class="meter-val" style="color:#b87c1a">DRIFT</span>
+          <div class="meter-bar"><div class="meter-fill" style="width:80%;background:#b87c1a"></div></div>
+        </div>
+      </div>
+      <div class="node-body">Collision: "Essential Athlete" vs "Addict-in-Denial." Twin objective: preserve the athlete eigenmode by correcting trajectory before ecosystem narrative forecloses it permanently.</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="s-node" onclick="sendPrompt('What does S-node scalar enforcement mean in a digital twin for behavioral intervention?')">
+      <div>
+        <div class="s-label"><span class="chip chip-green">S</span>Scalar · enforced decision</div>
+        <div class="s-sub">η-gate: CLOSED → constraint injection → "Car Service" as runtime invariant ↗</div>
+      </div>
+      <div style="font-size:18px;color:#2a6e3f">→</div>
+    </div>
+  </div>
+
+  <div id="p-variance" class="panel">
+    <div class="formula">
+      Memory(<b>L_tot</b>) = <b>L₀</b> + Σᵢ <b>wᵢ · Lᵢ</b> + <b>σ²ᵢ</b> + <b>λᵢ</b> + <b>εᵢ</b>
+    </div>
+    <div class="grid3">
+      <div class="cell">
+        <div class="cell-head">Known knowns</div>
+        <div class="cell-body"><b>L₀</b> 50-yr post-spinal biology<br><b>wᵢ</b> Winner's Ethos self-reliance<br><b>Lᵢ</b> pain suppression + autonomy</div>
+      </div>
+      <div class="cell" style="border-color:var(--amber-border)">
+        <div class="cell-head" style="color:var(--amber)">Known unknowns</div>
+        <div class="cell-body"><b>σ²ᵢ</b> substance class unconfirmed<br><b>λᵢ</b> 3 crashes baked in — next λ may be ∞</div>
+      </div>
+      <div class="cell" style="border-color:var(--red-border)">
+        <div class="cell-head" style="color:var(--red)">Unknown unknowns</div>
+        <div class="cell-body"><b>εᵢ</b> "if stress &gt; threshold → relinquish control" branch never compiled into the runtime</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="grid2">
+      <div class="node risk" style="margin:0">
+        <div class="node-label" style="margin-bottom:6px"><span class="chip chip-red">λᵢ</span>dominates</div>
+        <div class="node-body">∇L ≈ ∇λ ≫ ∇(Lᵢ, σ²ᵢ). Small probability · massive consequence. System must behave as if catastrophe is imminent even when unlikely — aviation logic.</div>
+      </div>
+      <div class="node warn" style="margin:0">
+        <div class="node-label" style="margin-bottom:6px"><span class="chip chip-amber">εᵢ</span>uncompiled</div>
+        <div class="node-body">Not "forgot to call a driver." The counterfactual policy was never instantiated in the behavioral runtime. Missing code paths, not missing data.</div>
+      </div>
+    </div>
+    <div class="node info" style="margin-top:10px">
+      <div class="node-label" style="margin-bottom:6px"><span class="chip chip-blue">SAS</span>Stephen A. Smith · exogenous gradient</div>
+      <div class="node-body">Operates at ecosystem layer · post-event · narrative correction. The twin operates at pre-action layer · real-time · constraint enforcement. Ecosystem corrects identity. Twin corrects trajectory.</div>
+    </div>
+  </div>
+
+  <div id="p-ulysses" class="panel">
+    <div class="formula">
+      L<b>_tot^U</b> = L_tot + Σⱼ (1 − <b>I_Ulysses,j</b>) · <b>R_cat,j</b> · 𝟙<b>_precommit</b>
+    </div>
+    <div class="missing-grid">
+      <div class="missing">
+        <div class="missing-tag">uncompiled</div>
+        <div class="missing-title">No-drive-on-meds protocol</div>
+        <div class="missing-sub">R_cat = fatal accident</div>
+      </div>
+      <div class="missing">
+        <div class="missing-tag">uncompiled</div>
+        <div class="missing-title">Default chauffeur binding</div>
+        <div class="missing-sub">R_cat = repeated incidents</div>
+      </div>
+      <div class="missing">
+        <div class="missing-tag">uncompiled</div>
+        <div class="missing-title">Pain-state → control transfer</div>
+        <div class="missing-sub">R_cat = impairment cascade</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="ulysses-item">
+      <div class="ul-head"><div class="ul-num">1</div><div class="ul-title">Pre-commitment contract</div></div>
+      <div class="ul-body">Converts open-loop to closed-loop. If pain-med telemetry or surgical-recovery flag active → vehicle ignition locked to chauffeur mode. η-gate stays closed until contract is IoT-enforced, not merely signed.</div>
+    </div>
+    <div class="ulysses-item">
+      <div class="ul-head"><div class="ul-num">2</div><div class="ul-title">Interface removal</div></div>
+      <div class="ul-body">Physically deletes the high-risk affordance. Driver-seat biometric lock when P(impairment) &gt; τ via breathalyzer + gait + voice-stress fusion. V-node urine refusal bypassed by non-invasive priors.</div>
+    </div>
+    <div class="ulysses-item">
+      <div class="ul-head"><div class="ul-num">3</div><div class="ul-title">Delegated control node</div></div>
+      <div class="ul-body">External sovereign operator as default. Chauffeur becomes w_safety, overriding the self-reliance weight wᵢ that decades of mastery reinforced. S-node scalar becomes enforcement, not recommendation.</div>
+    </div>
+    <div class="closing">The tragedy is not lack of resources. It is a weight matrix optimized for mastery that was never compiled with the invariant: "mastery does not mean driving impaired."</div>
+  </div>
+
+  <div id="p-gate" class="panel">
+    <div class="node" style="margin-bottom:12px">
+      <div class="formula" style="margin:0 0 8px">
+        L<b>_tot</b> = <b>L₀</b> + Σ w<b>ijk</b> L<b>ijk</b> + <b>λ</b>
+      </div>
+      <div class="node-body">Gate opens only if N_completeness &gt; 0.90 and conf &gt; 0.85. Current state violates both thresholds. λ-penalty approaches ∞ on next incident.</div>
+    </div>
+    <div class="gate" onclick="sendPrompt('Explain the irreversibility gate logic in the UKB-Pyro framework and what N_completeness measures')">
+      <div class="gate-dot open">✕</div>
+      <div>
+        <div class="gate-title">Driver-seat interface · gate open — failure state</div>
+        <div class="gate-sub">N_completeness = 0.31 · conf = 0.26 · λ near-infinite ↗</div>
+      </div>
+    </div>
+    <div class="gate" onclick="sendPrompt('What does a closed η-gate look like in practice for a high-fidelity behavioral twin?')">
+      <div class="gate-dot closed">✓</div>
+      <div>
+        <div class="gate-title">Car-service protocol · gate closed — target state</div>
+        <div class="gate-sub">Ulysses invariant compiled · I_consent · L_tot enforced ↗</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="grid2">
+      <div class="cell">
+        <div class="cell-head">Naming — scale 1 · person</div>
+        <div class="cell-body">Individual behavioral-clinical analysis. Single human manifold with full biographical prior and public-record telemetry.</div>
+      </div>
+      <div class="cell">
+        <div class="cell-head">Domain F19 · ICD-10</div>
+        <div class="cell-body">Mental and behavioral disorders due to multiple drug use and use of other psychoactive substances.</div>
+      </div>
+    </div>
+    <div class="cell" style="margin-top:10px">
+      <div class="cell-head">Node E · Eigenmode</div>
+      <div class="cell-body">Posterior identity extraction and trajectory protection. Preserve "Essential Athlete" eigenmode against destructive attractor states. v01 = first high-fidelity psychological twin instantiation under the Ukubona catalog.</div>
+    </div>
+  </div>
+</div>
+<script>
+function tab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('p-' + id).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
